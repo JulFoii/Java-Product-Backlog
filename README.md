@@ -12,6 +12,4 @@ Das "Java Product Backlog" ist eine Implementierung eines Product Backlogs in Ja
 
 ### Voraussetzungen 🔧
 
-Stellen Sie sicher, dass Sie Java 11 oder höher auf Ihrem System installiert haben. Wenn nicht, können Sie es hier herunterladen: [Java Downloads](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
-
-
+Stellen Sie sicher, dass Sie Java 21 oder höher auf Ihrem System installiert haben.
