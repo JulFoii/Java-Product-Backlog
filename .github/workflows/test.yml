@@ -18,7 +18,7 @@ jobs:
         with:
           java-version: 21
 
-      # 3. Caching für Maven-Abhängigkeiten (optional, beschleunigt Builds)
+      # 3. Cache Maven-Abhängigkeiten
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
@@ -27,15 +27,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4. Build-Prozess mit `maven-assembly-plugin`
-      - name: Build
-        run: mvn clean compile package assembly:single
+      # 4. Cache löschen (bei Problemen mit Abhängigkeiten)
+      - name: Clear Maven Cache
+        run: mvn dependency:purge-local-repository
 
-      # 5. Tests ausführen
+      # 5. Build-Prozess mit `maven-assembly-plugin`
+      - name: Build
+        run: mvn clean package
+
+      # 6. Debugging bei Fehlern
+      - name: Debug Maven Build
+        if: ${{ failure() }}
+        run: mvn clean package -e -X
+
+      # 7. Tests ausführen
       - name: Test
         run: mvn test
 
-      # 6. Build-Artefakte hochladen
+      # 8. Build-Artefakte hochladen
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
