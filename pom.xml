@@ -73,6 +73,11 @@
             <artifactId>vaadin-testbench-junit5</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <defaultGoal>spring-boot:run</defaultGoal>
@@ -90,6 +95,27 @@
                         <goals>
                             <goal>prepare-frontend</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Assembly Plugin hinzugefügt -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.7.1</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <finalName>${project.artifactId}-${project.version}</finalName>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
