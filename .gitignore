@@ -1,35 +1,43 @@
+# Maven spezifische Dateien
 target/
 !.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
+# Log-Dateien
+*.log
+
+# Eclipse spezifische Dateien
+.settings/
+.project
+.classpath
+
+# IntelliJ IDEA spezifische Dateien
+.idea/
 *.iml
 *.ipr
+*.iws
+out/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# NetBeans spezifische Dateien
+nbproject/
+nbproject/private/
 build/
-!**/src/main/**/build/
-!**/src/test/**/build/
+nbbuild/
+dist/
+.nb-gradle/
 
-### VS Code ###
+# VS Code spezifische Dateien
 .vscode/
 
-### Mac OS ###
+# Betriebssystem-Dateien
 .DS_Store
+Thumbs.db
+
+# Temporäre Dateien
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# Sonstiges
+!README.md
