@@ -10,17 +10,24 @@ jobs:
     steps:
       - name: Check-out
         uses: actions/checkout@v4
+
       - name: Setup Maven
         uses: s4u/setup-maven-action@v1.16.0
         with:
-          java-version: 21
+          java-version: 21      
+
+      - name: Maven Cache löschen
+        run: mvn dependency:purge-local-repository
+      
       - name: Build
-        run:  mvn clean compile assembly:single
+        run: mvn clean package
+      
       - name: Test
         run: mvn test
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: target
-          path: target
+          name: build-artifacts
+          path: target/*.jar
           retention-days: 90
