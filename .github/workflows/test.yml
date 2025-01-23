@@ -8,17 +8,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # 1. Code auschecken
       - name: Check-out
         uses: actions/checkout@v4
 
-      # 2. Maven und Java einrichten
       - name: Setup Maven
         uses: s4u/setup-maven-action@v1.16.0
         with:
           java-version: 21
 
-      # 3. Cache Maven-Abhängigkeiten
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
@@ -27,24 +24,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      # 4. Cache löschen (bei Problemen mit Abhängigkeiten)
-      - name: Clear Maven Cache
+      - name: Maven Cache löschen
         run: mvn dependency:purge-local-repository
-
-      # 5. Build-Prozess mit `maven-assembly-plugin`
+      
       - name: Build
         run: mvn clean package
-
-      # 6. Debugging bei Fehlern
-      - name: Debug Maven Build
-        if: ${{ failure() }}
-        run: mvn clean package -e -X
-
-      # 7. Tests ausführen
+      
       - name: Test
         run: mvn test
 
-      # 8. Build-Artefakte hochladen
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
