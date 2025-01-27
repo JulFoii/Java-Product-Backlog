@@ -1,26 +1,26 @@
 package com.example.application.data;
 
 public class Ticket {
-    private int prioritaet;
+    private int priority;
     private String item;
-    private String beschreibung;
-    private String zeitschaetzung;
+    private String description;
+    private String storyPoints;
     private String sprint;
 
-    public Ticket(int prioritaet, String item, String beschreibung, String zeitschaetzung, String sprint) {
-        this.prioritaet = prioritaet;
+    public Ticket(int priority, String item, String description, String storyPoints, String sprint) {
+        this.priority = priority;
         this.item = item;
-        this.beschreibung = beschreibung;
-        this.zeitschaetzung = zeitschaetzung;
+        this.description = description;
+        this.storyPoints = storyPoints;
         this.sprint = sprint;
     }
 
-    public int getPrioritaet() {
-        return prioritaet;
+    public int getPriority() {
+        return priority;
     }
 
-    public void setPrioritaet(int prioritaet) {
-        this.prioritaet = prioritaet;
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public String getItem() {
@@ -31,21 +31,22 @@ public class Ticket {
         this.item = item;
     }
 
-    public String getBeschreibung() {
-        return beschreibung;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBeschreibung(String beschreibung) {
-        this.beschreibung = beschreibung;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getZeitschaetzung() {
-        return zeitschaetzung;
+    public String getStoryPoints() {
+        return storyPoints;
     }
 
-    public void setZeitschaetzung(String zeitschaetzung) {
-        this.zeitschaetzung = zeitschaetzung;
+    public void setStoryPoints(String storyPoints) {
+        this.storyPoints = storyPoints;
     }
+
     public String getSprint() {
         return sprint;
     }
