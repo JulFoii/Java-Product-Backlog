@@ -142,7 +142,7 @@ public class TicketListView extends VerticalLayout {
     private void openAddTicketDialog() {
         Dialog dialog = new Dialog();
 
-        TextField itemField = new TextField("Item");
+        TextField itemField = new TextField("Title");
         TextArea descriptionField = new TextArea("Description");
         TextField priorityField = new TextField("Priority");
         TextField sprintField = new TextField("Sprint");
