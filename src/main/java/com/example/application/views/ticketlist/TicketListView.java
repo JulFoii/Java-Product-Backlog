@@ -31,6 +31,7 @@ public class TicketListView extends VerticalLayout {
     private Ticket draggedTicket;
 
     public TicketListView() {
+
         configureGrid();
         configureDragAndDrop();
 
