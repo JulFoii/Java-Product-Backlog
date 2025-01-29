@@ -35,7 +35,7 @@ public class TicketListView extends VerticalLayout {
         configureGrid();
         configureDragAndDrop();
 
-        Button addTicketButton = new Button("Create Item", e -> openAddTicketDialog());
+        Button addTicketButton = new Button("Create Ticket", e -> openAddTicketDialog());
 
         add(addTicketButton, grid);
     }
