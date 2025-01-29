@@ -3,15 +3,14 @@ package com.example.application.data;
 public class Ticket {
     private int prioritaet;
     private String item;
-    private String beschreibung;
-    private String zeitschaetzung;
+    private String description;
     private String sprint;
 
-    public Ticket(int prioritaet, String item, String beschreibung, String zeitschaetzung, String sprint) {
+    public Ticket(int prioritaet, String item, String description, String sprint) {
         this.prioritaet = prioritaet;
         this.item = item;
-        this.beschreibung = beschreibung;
-        this.zeitschaetzung = zeitschaetzung;
+        this.description = description;
+
         this.sprint = sprint;
     }
 
@@ -31,21 +30,14 @@ public class Ticket {
         this.item = item;
     }
 
-    public String getBeschreibung() {
-        return beschreibung;
+    public String getdescription() {
+        return description;
     }
 
-    public void setBeschreibung(String beschreibung) {
-        this.beschreibung = beschreibung;
+    public void setdescription(String description) {
+        this.description = description;
     }
 
-    public String getZeitschaetzung() {
-        return zeitschaetzung;
-    }
-
-    public void setZeitschaetzung(String zeitschaetzung) {
-        this.zeitschaetzung = zeitschaetzung;
-    }
     public String getSprint() {
         return sprint;
     }

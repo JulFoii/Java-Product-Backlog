@@ -31,11 +31,7 @@ public class TicketListView extends VerticalLayout {
     private final Grid<Ticket> grid = new Grid<>(Ticket.class);
 
     public TicketListView() {
-    	 //loadTicketsFromDatabase(); // Tickets aus der Datenbank laden
-        // Beispiel-Daten
-        tickets.add(new Ticket(1, "", "", "", ""));
-        tickets.add(new Ticket(2, " ", " ", " ", ""));
-        tickets.add(new Ticket(3, "", "", "", ""));
+    	 //loadTicketsFromDatabase(); // Tickets aus der Datenbank lade
 
         // Grid erstellen
         configureGrid();
@@ -70,7 +66,6 @@ public class TicketListView extends VerticalLayout {
         grid.addColumn(Ticket::getPrioritaet).setHeader("Priorität");
         grid.addColumn(Ticket::getItem).setHeader("Item");
         grid.addColumn(Ticket::getBeschreibung).setHeader("Beschreibung");
-        grid.addColumn(Ticket::getZeitschaetzung).setHeader("Zeitschätzung");
         grid.setItems(tickets);
 
         // Drag-and-Drop aktivieren
@@ -131,8 +126,7 @@ public class TicketListView extends VerticalLayout {
 
         grid.addColumn(Ticket::getPrioritaet).setHeader("Priorität").setAutoWidth(true);
         grid.addColumn(Ticket::getItem).setHeader("Item").setAutoWidth(true);
-        grid.addColumn(Ticket::getBeschreibung).setHeader("Beschreibung").setAutoWidth(true);
-        grid.addColumn(Ticket::getZeitschaetzung).setHeader("Story Point").setAutoWidth(true);
+        grid.addColumn(Ticket::getdescription).setHeader("Beschreibung").setAutoWidth(true);
         grid.addColumn(Ticket::getSprint).setHeader("Sprint").setAutoWidth(true);
 
         // Spalte für Aktionen
@@ -155,20 +149,18 @@ public class TicketListView extends VerticalLayout {
         // Formularfelder
         TextField prioritaetField = new TextField("Priorität", String.valueOf(ticket.getPrioritaet()));
         TextField itemField = new TextField("Item", ticket.getItem());
-        TextArea beschreibungField = new TextArea("Beschreibung", ticket.getBeschreibung()); // TextArea für mehrzeilige Texteingabe
-        TextField zeitschaetzungField = new TextField("Storypoints", ticket.getZeitschaetzung());
+        TextArea descriptionField = new TextArea("Beschreibung", ticket.getdescription()); // TextArea für mehrzeilige Texteingabe
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
         
         
         // Layout für das Formular
         FormLayout formLayout = new FormLayout();
-        formLayout.add(prioritaetField, itemField, beschreibungField, zeitschaetzungField, sprintField);
+        formLayout.add(prioritaetField, itemField, descriptionField, sprintField);
 
         // Speichern-Button
         Button saveButton = new Button("Speichern", e -> {
             ticket.setItem(itemField.getValue());
-            ticket.setBeschreibung(beschreibungField.getValue());
-            ticket.setZeitschaetzung(zeitschaetzungField.getValue());
+            ticket.setdescription(descriptionField.getValue());
             ticket.setSprint(sprintField.getValue());
 
           //  updateTicketInDatabase(ticket); // Datenbank aktualisieren
@@ -196,9 +188,8 @@ public class TicketListView extends VerticalLayout {
 
         // Formularfelder
         TextField itemField = new TextField("Item");
-        TextArea beschreibungField = new TextArea("Beschreibung"); // TextArea für mehrzeiligen Text
+        TextArea descriptionField = new TextArea("Beschreibung"); // TextArea für mehrzeiligen Text
         TextField prioritaetField = new TextField("Priorität");
-        TextField zeitschaetzungField = new TextField("Storypoints");
         TextField sprintField = new TextField("Sprint");
 
         // Automatisch die nächste Priorität berechnen
@@ -212,15 +203,14 @@ public class TicketListView extends VerticalLayout {
 
         // Layout für das Formular
         FormLayout formLayout = new FormLayout();
-        formLayout.add(itemField, beschreibungField, prioritaetField, zeitschaetzungField, sprintField);
+        formLayout.add(itemField, descriptionField, prioritaetField, sprintField);
 
         Button saveButton = new Button("Speichern", e -> {
             String item = itemField.getValue();
-            String beschreibung = beschreibungField.getValue();
-            String zeitschaetzung = zeitschaetzungField.getValue();
+            String description = descriptionField.getValue();
             String sprint = sprintField.getValue();
 
-            Ticket newTicket = new Ticket(nextPrioritaet, item, beschreibung, zeitschaetzung, sprint);
+            Ticket newTicket = new Ticket(nextPrioritaet, item, description, sprint);
             tickets.add(newTicket);
            // addTicketToDatabase(newTicket); // In die Datenbank speichern
 
