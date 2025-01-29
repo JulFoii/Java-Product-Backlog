@@ -31,10 +31,6 @@ public class TicketListView extends VerticalLayout {
     private Ticket draggedTicket;
 
     public TicketListView() {
-        // Beispiel-Daten
-        tickets.add(new Ticket(1, "Task A", "Description A", "5", "Sprint 1"));
-        tickets.add(new Ticket(2, "Task B", "Description B", "3", "Sprint 2"));
-        tickets.add(new Ticket(3, "Task C", "Description C", "8", "Sprint 1"));
 
         configureGrid();
         configureDragAndDrop();
