@@ -1,7 +1,7 @@
 package com.example.application.data;
 
 public class Ticket {
-    private int prioritaet;
+    private int priority;
     private String item;
     private String description;
     private String sprint;
@@ -11,15 +11,23 @@ public class Ticket {
         this.item = item;
         this.description = description;
 
+    private String storyPoints;
+    private String sprint;
+
+    public Ticket(int priority, String item, String description, String storyPoints, String sprint) {
+        this.priority = priority;
+        this.item = item;
+        this.description = description;
+        this.storyPoints = storyPoints;
         this.sprint = sprint;
     }
 
-    public int getPrioritaet() {
-        return prioritaet;
+    public int getPriority() {
+        return priority;
     }
 
-    public void setPrioritaet(int prioritaet) {
-        this.prioritaet = prioritaet;
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
     public String getItem() {
@@ -36,6 +44,22 @@ public class Ticket {
 
     public void setdescription(String description) {
         this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getStoryPoints() {
+        return storyPoints;
+    }
+
+    public void setStoryPoints(String storyPoints) {
+        this.storyPoints = storyPoints;
     }
 
     public String getSprint() {
