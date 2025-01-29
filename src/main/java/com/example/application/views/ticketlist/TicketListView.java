@@ -106,7 +106,7 @@ public class TicketListView extends VerticalLayout {
         Dialog editDialog = new Dialog();
 
         TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
-        TextField itemField = new TextField("Item", ticket.getItem());
+        TextField itemField = new TextField("Title", ticket.getItem());
         TextArea descriptionField = new TextArea("Description", ticket.getDescription());
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
 
