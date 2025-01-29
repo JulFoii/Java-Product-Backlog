@@ -4,14 +4,12 @@ public class Ticket {
     private int priority;
     private String item;
     private String description;
-    private String storyPoints;
     private String sprint;
 
-    public Ticket(int priority, String item, String description, String storyPoints, String sprint) {
+    public Ticket(int priority, String item, String description, String sprint) {
         this.priority = priority;
         this.item = item;
         this.description = description;
-        this.storyPoints = storyPoints;
         this.sprint = sprint;
     }
 
@@ -37,14 +35,6 @@ public class Ticket {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getStoryPoints() {
-        return storyPoints;
-    }
-
-    public void setStoryPoints(String storyPoints) {
-        this.storyPoints = storyPoints;
     }
 
     public String getSprint() {

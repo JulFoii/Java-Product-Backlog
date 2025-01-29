@@ -21,7 +21,7 @@ import org.vaadin.lineawesome.LineAwesomeIconUrl;
 import java.util.ArrayList;
 import java.util.List;
 
-@PageTitle("Ticket List")
+@PageTitle("Product Backlog List")
 @Route("")
 @Menu(order = 0, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 public class TicketListView extends VerticalLayout {
@@ -31,15 +31,10 @@ public class TicketListView extends VerticalLayout {
     private Ticket draggedTicket;
 
     public TicketListView() {
-        // Beispiel-Daten
-        tickets.add(new Ticket(1, "Task A", "Description A", "5", "Sprint 1"));
-        tickets.add(new Ticket(2, "Task B", "Description B", "3", "Sprint 2"));
-        tickets.add(new Ticket(3, "Task C", "Description C", "8", "Sprint 1"));
-
         configureGrid();
         configureDragAndDrop();
 
-        Button addTicketButton = new Button("Create Ticket", e -> openAddTicketDialog());
+        Button addTicketButton = new Button("Create Item", e -> openAddTicketDialog());
 
         add(addTicketButton, grid);
     }
@@ -56,7 +51,6 @@ public class TicketListView extends VerticalLayout {
         grid.addColumn(Ticket::getPriority).setHeader("Priority").setAutoWidth(true);
         grid.addColumn(Ticket::getItem).setHeader("Item").setAutoWidth(true);
         grid.addColumn(Ticket::getDescription).setHeader("Description").setAutoWidth(true);
-        grid.addColumn(Ticket::getStoryPoints).setHeader("Story Points").setAutoWidth(true);
         grid.addColumn(Ticket::getSprint).setHeader("Sprint").setAutoWidth(true);
 
         grid.addComponentColumn(ticket -> {
@@ -113,13 +107,10 @@ public class TicketListView extends VerticalLayout {
         TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
         TextField itemField = new TextField("Item", ticket.getItem());
         TextArea descriptionField = new TextArea("Description", ticket.getDescription());
-        ComboBox<String> storyPointsField = new ComboBox<>("Story Points");
-        storyPointsField.setItems("1", "2", "3", "5", "8", "13", "21");
-        storyPointsField.setValue(ticket.getStoryPoints());
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(priorityField, itemField, descriptionField, storyPointsField, sprintField);
+        formLayout.add(priorityField, itemField, descriptionField, sprintField);
 
         Button saveButton = new Button("Save", e -> {
             try {
@@ -127,7 +118,6 @@ public class TicketListView extends VerticalLayout {
                 ticket.setPriority(newPriority);
                 ticket.setItem(itemField.getValue());
                 ticket.setDescription(descriptionField.getValue());
-                ticket.setStoryPoints(storyPointsField.getValue());
                 ticket.setSprint(sprintField.getValue());
 
                 recalculatePriorities();
@@ -154,8 +144,6 @@ public class TicketListView extends VerticalLayout {
         TextField itemField = new TextField("Item");
         TextArea descriptionField = new TextArea("Description");
         TextField priorityField = new TextField("Priority");
-        ComboBox<String> storyPointsField = new ComboBox<>("Story Points");
-        storyPointsField.setItems("1", "2", "3", "5", "8", "13", "21");
         TextField sprintField = new TextField("Sprint");
 
         int nextPriority = tickets.stream()
@@ -166,17 +154,16 @@ public class TicketListView extends VerticalLayout {
         priorityField.setValue(String.valueOf(nextPriority));
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(itemField, descriptionField, priorityField, storyPointsField, sprintField);
+        formLayout.add(itemField, descriptionField, priorityField, sprintField);
 
         Button saveButton = new Button("Save", e -> {
             try {
                 int priority = Integer.parseInt(priorityField.getValue());
                 String item = itemField.getValue();
                 String description = descriptionField.getValue();
-                String storyPoints = storyPointsField.getValue();
                 String sprint = sprintField.getValue();
 
-                Ticket newTicket = new Ticket(priority, item, description, storyPoints, sprint);
+                Ticket newTicket = new Ticket(priority, item, description, sprint);
                 tickets.add(newTicket);
 
                 recalculatePriorities();

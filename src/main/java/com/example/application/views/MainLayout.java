@@ -104,7 +104,7 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("TicketList", LineAwesomeIcon.PENCIL_RULER_SOLID.create(), TicketListView.class), //
+                new MenuItemInfo("Product Backlog List", LineAwesomeIcon.PENCIL_RULER_SOLID.create(), TicketListView.class), //
 
         };
     }
