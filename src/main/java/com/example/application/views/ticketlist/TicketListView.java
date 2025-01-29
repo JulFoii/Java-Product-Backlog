@@ -50,7 +50,7 @@ public class TicketListView extends VerticalLayout {
         grid.removeAllColumns();
 
         grid.addColumn(Ticket::getPriority).setHeader("Priority").setAutoWidth(true);
-        grid.addColumn(Ticket::getItem).setHeader("Item").setAutoWidth(true);
+        grid.addColumn(Ticket::getItem).setHeader("Title").setAutoWidth(true);
         grid.addColumn(Ticket::getDescription).setHeader("Description").setAutoWidth(true);
         grid.addColumn(Ticket::getSprint).setHeader("Sprint").setAutoWidth(true);
 
