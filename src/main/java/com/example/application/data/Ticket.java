@@ -6,12 +6,6 @@ public class Ticket {
     private String description;
     private String sprint;
 
-    public Ticket(int priority, String item, String description, String sprint) {
-        this.priority = priority;
-        this.item = item;
-        this.description = description;
-        this.sprint = sprint;
-    }
 
     public int getPriority() {
         return priority;
