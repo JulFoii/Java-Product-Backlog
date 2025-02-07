@@ -1,8 +1,8 @@
 package com.example.application.views.ticketlist;
 
-import com.example.application.data.Ticket;
+import com.example.application.data.BacklogItem;
+import com.example.application.database.BacklogItemDAO;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -15,10 +15,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @PageTitle("Product Backlog List")
@@ -26,103 +24,92 @@ import java.util.List;
 @Menu(order = 0, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 public class TicketListView extends VerticalLayout {
 
-    private final List<Ticket> tickets = new ArrayList<>();
-    private final Grid<Ticket> grid = new Grid<>(Ticket.class);
-    private Ticket draggedTicket;
+    // DAO zur Interaktion mit der Datenbank über BacklogItems
+    private final BacklogItemDAO backlogItemDAO = new BacklogItemDAO();
+    // BacklogItems werden aus der Datenbank geladen
+    private List<BacklogItem> backlogItems = backlogItemDAO.getAllBacklogItems();
+    private final Grid<BacklogItem> grid = new Grid<>(BacklogItem.class);
+    private BacklogItem draggedItem;
 
     public TicketListView() {
-
         configureGrid();
         configureDragAndDrop();
 
-        Button addTicketButton = new Button("Create Item", e -> openAddTicketDialog());
-
-        add(addTicketButton, grid);
+        Button addItemButton = new Button("Create Item", e -> openAddBacklogItemDialog());
+        add(addItemButton, grid);
     }
 
-    private void deleteTicket(Ticket ticket) {
-        tickets.remove(ticket);
-        recalculatePriorities();
-        grid.setItems(tickets);
+    private void deleteBacklogItem(BacklogItem item) {
+        backlogItemDAO.deleteBacklogItem(item.getId());
+        refreshBacklogItems();
     }
 
     private void configureGrid() {
         grid.removeAllColumns();
 
-        grid.addColumn(Ticket::getPriority).setHeader("Priority").setAutoWidth(true);
-        grid.addColumn(Ticket::getItem).setHeader("Title").setAutoWidth(true);
-        grid.addColumn(Ticket::getDescription).setHeader("Description").setAutoWidth(true);
-        grid.addColumn(Ticket::getSprint).setHeader("Sprint").setAutoWidth(true);
+        grid.addColumn(BacklogItem::getPriority).setHeader("Priority").setAutoWidth(true);
+        grid.addColumn(BacklogItem::getItem).setHeader("Title").setAutoWidth(true);
+        grid.addColumn(BacklogItem::getDescription).setHeader("Description").setAutoWidth(true);
+        grid.addColumn(BacklogItem::getSprint).setHeader("Sprint").setAutoWidth(true);
 
-        grid.addComponentColumn(ticket -> {
-            Button deleteButton = new Button("Delete", e -> deleteTicket(ticket));
-            Button editButton = new Button("Edit", e -> openEditDialog(ticket));
+        grid.addComponentColumn(item -> {
+            Button deleteButton = new Button("Delete", e -> deleteBacklogItem(item));
+            Button editButton = new Button("Edit", e -> openEditDialog(item));
 
             HorizontalLayout actionsLayout = new HorizontalLayout(editButton, deleteButton);
             actionsLayout.setSpacing(true);
-
             return actionsLayout;
         }).setHeader("Actions");
 
-        grid.setItems(tickets);
+        grid.setItems(backlogItems);
     }
 
     private void configureDragAndDrop() {
-        grid.setRowsDraggable(true); // Aktiviert das Ziehen von Zeilen
-        grid.setDropMode(GridDropMode.ON_TOP); // Festlegen des Drop-Modes auf "ON_TOP"
+        grid.setRowsDraggable(true);
+        grid.setDropMode(GridDropMode.ON_TOP);
 
-        grid.addDragStartListener(event -> {
-            // Das gezogene Ticket speichern
-            draggedTicket = event.getDraggedItems().get(0);
-        });
+        grid.addDragStartListener(event -> draggedItem = event.getDraggedItems().get(0));
 
         grid.addDropListener(event -> {
-            Ticket targetTicket = event.getDropTargetItem().orElse(null); // Ziel-Ticket
-            GridDropLocation dropLocation = event.getDropLocation(); // Position des Drops
+            BacklogItem targetItem = event.getDropTargetItem().orElse(null);
+            GridDropLocation dropLocation = event.getDropLocation();
 
-            if (draggedTicket != null && targetTicket != null && draggedTicket != targetTicket) {
-                tickets.remove(draggedTicket); // Entfernen des gezogenen Tickets aus der Liste
-
-                // Zielindex bestimmen
-                int targetIndex = tickets.indexOf(targetTicket) + (dropLocation == GridDropLocation.BELOW ? 1 : 0);
-                tickets.add(targetIndex, draggedTicket); // An der neuen Position hinzufügen
-
-                recalculatePriorities(); // Prioritäten neu berechnen
-                grid.setItems(tickets); // Grid aktualisieren
+            if (draggedItem != null && targetItem != null && draggedItem != targetItem) {
+                backlogItems.remove(draggedItem);
+                int targetIndex = backlogItems.indexOf(targetItem) + (dropLocation == GridDropLocation.BELOW ? 1 : 0);
+                backlogItems.add(targetIndex, draggedItem);
+                recalculatePriorities();
+                grid.setItems(backlogItems);
+                backlogItems.forEach(backlogItemDAO::updateBacklogItem);
             }
-
-            // Gezogene Zeile zurücksetzen
-            draggedTicket = null;
+            draggedItem = null;
         });
 
-        grid.addDragEndListener(event -> {
-            draggedTicket = null; // Sicherstellen, dass kein altes gezogenes Element bleibt
-        });
+        grid.addDragEndListener(event -> draggedItem = null);
     }
 
-
-
-    private void openEditDialog(Ticket ticket) {
+    private void openEditDialog(BacklogItem item) {
         Dialog editDialog = new Dialog();
 
-        TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
-        TextField itemField = new TextField("Title", ticket.getItem());
-        TextArea descriptionField = new TextArea("Description", ticket.getDescription());
-        TextField sprintField = new TextField("Sprint", ticket.getSprint());
+        TextField priorityField = new TextField("Priority", String.valueOf(item.getPriority()));
+        TextField titleField = new TextField("Title", item.getItem());
+        TextArea descriptionField = new TextArea("Description", item.getDescription());
+        TextField sprintField = new TextField("Sprint", item.getSprint());
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(priorityField, itemField, descriptionField, sprintField);
+        formLayout.add(priorityField, titleField, descriptionField, sprintField);
 
         Button saveButton = new Button("Save", e -> {
             try {
                 int newPriority = Integer.parseInt(priorityField.getValue());
-                ticket.setPriority(newPriority);
-                ticket.setItem(itemField.getValue());
-                ticket.setDescription(descriptionField.getValue());
-                ticket.setSprint(sprintField.getValue());
+                item.setPriority(newPriority);
+                item.setItem(titleField.getValue());
+                item.setDescription(descriptionField.getValue());
+                item.setSprint(sprintField.getValue());
 
                 recalculatePriorities();
-                grid.setItems(tickets);
+                backlogItemDAO.updateBacklogItem(item);
+                refreshBacklogItems();
                 editDialog.close();
             } catch (NumberFormatException ex) {
                 priorityField.setInvalid(true);
@@ -131,7 +118,6 @@ public class TicketListView extends VerticalLayout {
         });
 
         Button cancelButton = new Button("Cancel", e -> editDialog.close());
-
         HorizontalLayout buttonsLayout = new HorizontalLayout(saveButton, cancelButton);
         VerticalLayout dialogLayout = new VerticalLayout(formLayout, buttonsLayout);
 
@@ -139,36 +125,32 @@ public class TicketListView extends VerticalLayout {
         editDialog.open();
     }
 
-    private void openAddTicketDialog() {
+    private void openAddBacklogItemDialog() {
         Dialog dialog = new Dialog();
 
-        TextField itemField = new TextField("Title");
+        TextField titleField = new TextField("Title");
         TextArea descriptionField = new TextArea("Description");
         TextField priorityField = new TextField("Priority");
         TextField sprintField = new TextField("Sprint");
 
-        int nextPriority = tickets.stream()
-                .mapToInt(Ticket::getPriority)
-                .max()
-                .orElse(0) + 1;
-
+        int nextPriority = backlogItems.stream()
+                .mapToInt(BacklogItem::getPriority)
+                .max().orElse(0) + 1;
         priorityField.setValue(String.valueOf(nextPriority));
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(itemField, descriptionField, priorityField, sprintField);
+        formLayout.add(titleField, descriptionField, priorityField, sprintField);
 
         Button saveButton = new Button("Save", e -> {
             try {
                 int priority = Integer.parseInt(priorityField.getValue());
-                String item = itemField.getValue();
+                String title = titleField.getValue();
                 String description = descriptionField.getValue();
                 String sprint = sprintField.getValue();
 
-                Ticket newTicket = new Ticket(priority, item, description, sprint);
-                tickets.add(newTicket);
-
-                recalculatePriorities();
-                grid.setItems(tickets);
+                BacklogItem newItem = new BacklogItem(priority, title, description, sprint);
+                backlogItemDAO.addBacklogItem(newItem);
+                refreshBacklogItems();
                 dialog.close();
             } catch (NumberFormatException ex) {
                 priorityField.setInvalid(true);
@@ -181,14 +163,18 @@ public class TicketListView extends VerticalLayout {
 
         VerticalLayout dialogLayout = new VerticalLayout(formLayout, buttonsLayout);
         dialog.add(dialogLayout);
-
         dialog.open();
     }
 
     private void recalculatePriorities() {
-        tickets.sort((t1, t2) -> Integer.compare(t1.getPriority(), t2.getPriority()));
-        for (int i = 0; i < tickets.size(); i++) {
-            tickets.get(i).setPriority(i + 1);
+        backlogItems.sort((i1, i2) -> Integer.compare(i1.getPriority(), i2.getPriority()));
+        for (int i = 0; i < backlogItems.size(); i++) {
+            backlogItems.get(i).setPriority(i + 1);
         }
+    }
+
+    private void refreshBacklogItems() {
+        backlogItems = backlogItemDAO.getAllBacklogItems();
+        grid.setItems(backlogItems);
     }
 }

@@ -18,7 +18,7 @@ public class BacklogItemDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, item.getDescription());
-            stmt.setString(2, item.getPriority());
+            stmt.setString(2, Integer.toString(item.getPriority()));
             stmt.executeUpdate();
             System.out.println("Backlog-Item wurde hinzugefügt.");
         } catch (SQLException e) {
@@ -37,7 +37,7 @@ public class BacklogItemDAO {
                 BacklogItem item = new BacklogItem();
                 item.setId(rs.getInt("id"));
                 item.setDescription(rs.getString("description"));
-                item.setPriority(rs.getString("priority"));
+                item.setPriority(Integer.parseInt(rs.getString("priority")));
                 items.add(item);
             }
         } catch (SQLException e) {
@@ -51,7 +51,7 @@ public class BacklogItemDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, item.getDescription());
-            stmt.setString(2, item.getPriority());
+            stmt.setString(2, Integer.toString(item.getPriority()));
             stmt.setInt(3, item.getId());
             stmt.executeUpdate();
             System.out.println("Backlog-Item wurde aktualisiert.");
