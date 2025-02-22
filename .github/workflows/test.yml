@@ -14,20 +14,10 @@ jobs:
       - name: Setup Maven
         uses: s4u/setup-maven-action@v1.16.0
         with:
-          java-version: 21      
+          java-version: 21
 
-      - name: Maven Cache löschen
-        run: mvn dependency:purge-local-repository
-      
       - name: Build
-        run: mvn clean package
-      
+        run: mvn package
+
       - name: Test
         run: mvn test
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: target/*.jar
-          retention-days: 90
