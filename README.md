@@ -22,6 +22,6 @@ Docker
 # Aktueller Main Branch
 docker run -p 8080:8080 ghcr.io/julfoii/java-product-backlog:main
 
-# Aktueller Main Branch
+# Neuster Release
 docker run -p 8080:8080 ghcr.io/julfoii/java-product-backlog:latest
 ```
