@@ -1,6 +1,8 @@
 # Maven spezifische Dateien
 target/
 !.mvn/wrapper/maven-wrapper.jar
+src/main/frontend/generated
+src/main/bundles
 
 # Log-Dateien
 *.log
