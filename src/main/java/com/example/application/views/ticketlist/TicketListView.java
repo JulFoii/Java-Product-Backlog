@@ -84,6 +84,7 @@ public class TicketListView extends VerticalLayout {
             tickets.remove(index);
             tickets.add(index - 1, ticket);
             rebuildTicketList();
+            grid.getDataProvider().refreshAll();
         }
     }
 
@@ -93,6 +94,7 @@ public class TicketListView extends VerticalLayout {
             tickets.remove(index);
             tickets.add(index + 1, ticket);
             rebuildTicketList();
+            grid.getDataProvider().refreshAll();
         }
     }
 
@@ -100,22 +102,32 @@ public class TicketListView extends VerticalLayout {
         for (int i = 0; i < tickets.size(); i++) {
             tickets.get(i).setPriority(i + 1);
         }
-        grid.setItems(new ArrayList<>(tickets));
+        //grid.setItems(new ArrayList<>(tickets));
+        grid.getDataProvider().refreshAll();
     }
 
     private void openEditDialog(Ticket ticket) {
         Dialog editDialog = new Dialog();
-        TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
+        //TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
         TextField itemField = new TextField("Title", ticket.getItem());
         TextArea descriptionField = new TextArea("Description", ticket.getDescription());
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
 
-        FormLayout formLayout = new FormLayout(priorityField, itemField, descriptionField, sprintField);
+        FormLayout formLayout = new FormLayout(itemField, descriptionField, sprintField);
         Button saveButton = new Button("Save", e -> {
-            ticket.setPriority(Integer.parseInt(priorityField.getValue().trim()));
-            ticket.setItem(itemField.getValue().trim());
-            ticket.setDescription(descriptionField.getValue().trim());
-            ticket.setSprint(sprintField.getValue().trim());
+            // Falls das Feld leer ist, bleibt der alte Wert erhalten
+            if (!itemField.getValue().trim().isEmpty()) {
+                ticket.setItem(itemField.getValue().trim());
+            }
+            if (!descriptionField.getValue().trim().isEmpty()) {
+                ticket.setDescription(descriptionField.getValue().trim());
+            }
+            if (!sprintField.getValue().trim().isEmpty()) {
+                ticket.setSprint(sprintField.getValue().trim());
+            }
+
+            // Aktualisiert das Grid, ohne die Referenzen zu verlieren
+            grid.getDataProvider().refreshItem(ticket);
             rebuildTicketList();
             editDialog.close();
         });
@@ -128,13 +140,14 @@ public class TicketListView extends VerticalLayout {
         Dialog dialog = new Dialog();
         TextField itemField = new TextField("Title");
         TextArea descriptionField = new TextArea("Description");
-        TextField priorityField = new TextField("Priority");
+        //TextField priorityField = new TextField("Priority");
         TextField sprintField = new TextField("Sprint");
+        int nextPriority = tickets.isEmpty() ? 1 : tickets.stream().mapToInt(Ticket::getPriority).max().orElse(0) + 1;
+        TextField priorityField = new TextField("Priority", String.valueOf(nextPriority));
 
         FormLayout formLayout = new FormLayout(itemField, descriptionField, priorityField, sprintField);
         Button saveButton = new Button("Save", e -> {
             Ticket newTicket = new Ticket();
-            newTicket.setPriority(Integer.parseInt(priorityField.getValue().trim()));
             newTicket.setItem(itemField.getValue().trim());
             newTicket.setDescription(descriptionField.getValue().trim());
             newTicket.setSprint(sprintField.getValue().trim());
