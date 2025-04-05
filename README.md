@@ -13,3 +13,15 @@ Das "Java Product Backlog" ist eine Implementierung eines Product Backlogs in Ja
 ### Voraussetzungen 🔧
 
 Stellen Sie sicher, dass Sie Java 21 oder höher auf Ihrem System installiert haben.
+
+## Nutzung
+
+Docker
+
+```bash
+# Aktueller Main Branch
+docker run -p 8080:8080 ghcr.io/julfoii/java-product-backlog:main
+
+# Neuster Release
+docker run -p 8080:8080 ghcr.io/julfoii/java-product-backlog:latest
+```

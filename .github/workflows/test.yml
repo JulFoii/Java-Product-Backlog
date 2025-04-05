@@ -11,23 +11,21 @@ jobs:
       - name: Check-out
         uses: actions/checkout@v4
 
-      - name: Setup Maven
-        uses: s4u/setup-maven-action@v1.16.0
+      - name: Cache Maven Repository
+        uses: actions/cache@v3
         with:
-          java-version: 21      
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Maven Cache löschen
-        run: mvn dependency:purge-local-repository
-      
+      - name: Setup Maven
+        uses: s4u/setup-maven-action@v1.18.0
+        with:
+          java-version: 21
+
       - name: Build
-        run: mvn clean package
-      
+        run: mvn package
+
       - name: Test
         run: mvn test
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: target/*.jar
-          retention-days: 90

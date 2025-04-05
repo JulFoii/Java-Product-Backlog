@@ -1,0 +1,45 @@
+# Maven spezifische Dateien
+target/
+!.mvn/wrapper/maven-wrapper.jar
+src/main/frontend/generated
+src/main/bundles
+
+# Log-Dateien
+*.log
+
+# Eclipse spezifische Dateien
+.settings/
+.project
+.classpath
+
+# IntelliJ IDEA spezifische Dateien
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# NetBeans spezifische Dateien
+nbproject/
+nbproject/private/
+build/
+nbbuild/
+dist/
+.nb-gradle/
+
+# VS Code spezifische Dateien
+.vscode/
+
+# Betriebssystem-Dateien
+.DS_Store
+Thumbs.db
+
+# Temporäre Dateien
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+
+# Sonstiges
+!README.md
