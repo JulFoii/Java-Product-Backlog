@@ -1,18 +1,40 @@
 package com.example.application.data;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "ticket")
 public class Ticket {
-    private int priority;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String item;
     private String description;
     private String sprint;
+    private int priority;
 
-
-    public int getPriority() {
-        return priority;
+    // Standard-Konstruktor (wichtig für JPA)
+    public Ticket() {
     }
 
-    public void setPriority(int priority) {
+    // Optional: zusätzlicher Konstruktor
+    public Ticket(String item, String description, String sprint, int priority) {
+        this.item = item;
+        this.description = description;
+        this.sprint = sprint;
         this.priority = priority;
+    }
+
+    // Getter & Setter
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getItem() {
@@ -37,5 +59,13 @@ public class Ticket {
 
     public void setSprint(String sprint) {
         this.sprint = sprint;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

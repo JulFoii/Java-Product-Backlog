@@ -1,6 +1,7 @@
 package com.example.application.views.ticketlist;
 
 import com.example.application.data.Ticket;
+import com.example.application.service.TicketService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -14,8 +15,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.lineawesome.LineAwesomeIconUrl;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @PageTitle("Product Backlog List")
@@ -23,20 +26,23 @@ import java.util.List;
 @Menu(order = 0, icon = LineAwesomeIconUrl.PENCIL_RULER_SOLID)
 public class TicketListView extends VerticalLayout {
 
-    private final List<Ticket> tickets = new ArrayList<>();
+    private final TicketService ticketService;
     private final Grid<Ticket> grid = new Grid<>(Ticket.class);
     private Ticket draggedTicket;
+    private List<Ticket> tickets;
 
-    public TicketListView() {
+    @Autowired
+    public TicketListView(TicketService ticketService) {
+        this.ticketService = ticketService;
+    }
+
+    @PostConstruct
+    private void init() {
+        this.tickets = ticketService.findAll();
         configureGrid();
         configureDragAndDrop();
         Button addTicketButton = new Button("Create Item", e -> openAddTicketDialog());
         add(addTicketButton, grid);
-    }
-
-    private void deleteTicket(Ticket ticket) {
-        tickets.remove(ticket);
-        rebuildTicketList();
     }
 
     private void configureGrid() {
@@ -84,7 +90,6 @@ public class TicketListView extends VerticalLayout {
             tickets.remove(index);
             tickets.add(index - 1, ticket);
             rebuildTicketList();
-            grid.getDataProvider().refreshAll();
         }
     }
 
@@ -94,28 +99,32 @@ public class TicketListView extends VerticalLayout {
             tickets.remove(index);
             tickets.add(index + 1, ticket);
             rebuildTicketList();
-            grid.getDataProvider().refreshAll();
         }
     }
 
     private void rebuildTicketList() {
         for (int i = 0; i < tickets.size(); i++) {
-            tickets.get(i).setPriority(i + 1);
+            Ticket t = tickets.get(i);
+            t.setPriority(i + 1);
+            ticketService.save(t); // DB-Update
         }
-        //grid.setItems(new ArrayList<>(tickets));
         grid.getDataProvider().refreshAll();
+    }
+
+    private void deleteTicket(Ticket ticket) {
+        tickets.remove(ticket);
+        ticketService.delete(ticket);
+        rebuildTicketList();
     }
 
     private void openEditDialog(Ticket ticket) {
         Dialog editDialog = new Dialog();
-        //TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
         TextField itemField = new TextField("Title", ticket.getItem());
         TextArea descriptionField = new TextArea("Description", ticket.getDescription());
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
 
         FormLayout formLayout = new FormLayout(itemField, descriptionField, sprintField);
         Button saveButton = new Button("Save", e -> {
-            // Falls das Feld leer ist, bleibt der alte Wert erhalten
             if (!itemField.getValue().trim().isEmpty()) {
                 ticket.setItem(itemField.getValue().trim());
             }
@@ -126,7 +135,7 @@ public class TicketListView extends VerticalLayout {
                 ticket.setSprint(sprintField.getValue().trim());
             }
 
-            // Aktualisiert das Grid, ohne die Referenzen zu verlieren
+            ticketService.save(ticket);
             grid.getDataProvider().refreshItem(ticket);
             rebuildTicketList();
             editDialog.close();
@@ -140,8 +149,8 @@ public class TicketListView extends VerticalLayout {
         Dialog dialog = new Dialog();
         TextField itemField = new TextField("Title");
         TextArea descriptionField = new TextArea("Description");
-        //TextField priorityField = new TextField("Priority");
         TextField sprintField = new TextField("Sprint");
+
         int nextPriority = tickets.isEmpty() ? 1 : tickets.stream().mapToInt(Ticket::getPriority).max().orElse(0) + 1;
         TextField priorityField = new TextField("Priority", String.valueOf(nextPriority));
 
@@ -151,10 +160,22 @@ public class TicketListView extends VerticalLayout {
             newTicket.setItem(itemField.getValue().trim());
             newTicket.setDescription(descriptionField.getValue().trim());
             newTicket.setSprint(sprintField.getValue().trim());
-            tickets.add(newTicket);
+
+            String rawPriority = priorityField.getValue().trim();
+            int priority;
+            try {
+                priority = Integer.parseInt(rawPriority);
+            } catch (NumberFormatException ex) {
+                priority = nextPriority; // fallback
+            }
+            newTicket.setPriority(priority);
+
+            Ticket saved = ticketService.save(newTicket);
+            tickets.add(saved);
             rebuildTicketList();
             dialog.close();
         });
+
         Button cancelButton = new Button("Cancel", e -> dialog.close());
         dialog.add(new VerticalLayout(formLayout, new HorizontalLayout(saveButton, cancelButton)));
         dialog.open();
