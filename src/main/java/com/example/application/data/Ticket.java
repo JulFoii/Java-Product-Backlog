@@ -15,19 +15,15 @@ public class Ticket {
     private String sprint;
     private int priority;
 
-    // Standard-Konstruktor (wichtig für JPA)
     public Ticket() {
     }
 
-    // Optional: zusätzlicher Konstruktor
     public Ticket(String item, String description, String sprint, int priority) {
         this.item = item;
         this.description = description;
         this.sprint = sprint;
         this.priority = priority;
     }
-
-    // Getter & Setter
 
     public Long getId() {
         return id;

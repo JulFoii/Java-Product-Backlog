@@ -16,7 +16,7 @@ public class TicketService {
     }
 
     public List<Ticket> findAll() {
-        return repository.findAll();
+        return repository.findAllByOrderByPriorityAsc();
     }
 
     public Ticket save(Ticket ticket) {

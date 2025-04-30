@@ -47,7 +47,6 @@ public class TicketListView extends VerticalLayout {
 
     private void configureGrid() {
         grid.removeAllColumns();
-
         grid.addColumn(Ticket::getPriority).setHeader("Priority").setAutoWidth(true);
         grid.addColumn(Ticket::getItem).setHeader("Title").setAutoWidth(true);
         grid.addColumn(Ticket::getDescription).setHeader("Description").setAutoWidth(true);
@@ -106,7 +105,7 @@ public class TicketListView extends VerticalLayout {
         for (int i = 0; i < tickets.size(); i++) {
             Ticket t = tickets.get(i);
             t.setPriority(i + 1);
-            ticketService.save(t); // DB-Update
+            ticketService.save(t);
         }
         grid.getDataProvider().refreshAll();
     }
@@ -125,15 +124,9 @@ public class TicketListView extends VerticalLayout {
 
         FormLayout formLayout = new FormLayout(itemField, descriptionField, sprintField);
         Button saveButton = new Button("Save", e -> {
-            if (!itemField.getValue().trim().isEmpty()) {
-                ticket.setItem(itemField.getValue().trim());
-            }
-            if (!descriptionField.getValue().trim().isEmpty()) {
-                ticket.setDescription(descriptionField.getValue().trim());
-            }
-            if (!sprintField.getValue().trim().isEmpty()) {
-                ticket.setSprint(sprintField.getValue().trim());
-            }
+            if (!itemField.getValue().trim().isEmpty()) ticket.setItem(itemField.getValue().trim());
+            if (!descriptionField.getValue().trim().isEmpty()) ticket.setDescription(descriptionField.getValue().trim());
+            if (!sprintField.getValue().trim().isEmpty()) ticket.setSprint(sprintField.getValue().trim());
 
             ticketService.save(ticket);
             grid.getDataProvider().refreshItem(ticket);
@@ -150,7 +143,6 @@ public class TicketListView extends VerticalLayout {
         TextField itemField = new TextField("Title");
         TextArea descriptionField = new TextArea("Description");
         TextField sprintField = new TextField("Sprint");
-
         int nextPriority = tickets.isEmpty() ? 1 : tickets.stream().mapToInt(Ticket::getPriority).max().orElse(0) + 1;
         TextField priorityField = new TextField("Priority", String.valueOf(nextPriority));
 
@@ -161,21 +153,20 @@ public class TicketListView extends VerticalLayout {
             newTicket.setDescription(descriptionField.getValue().trim());
             newTicket.setSprint(sprintField.getValue().trim());
 
-            String rawPriority = priorityField.getValue().trim();
-            int priority;
+            String raw = priorityField.getValue().trim();
+            int prio;
             try {
-                priority = Integer.parseInt(rawPriority);
+                prio = Integer.parseInt(raw);
             } catch (NumberFormatException ex) {
-                priority = nextPriority; // fallback
+                prio = nextPriority;
             }
-            newTicket.setPriority(priority);
+            newTicket.setPriority(prio);
 
             Ticket saved = ticketService.save(newTicket);
             tickets.add(saved);
             rebuildTicketList();
             dialog.close();
         });
-
         Button cancelButton = new Button("Cancel", e -> dialog.close());
         dialog.add(new VerticalLayout(formLayout, new HorizontalLayout(saveButton, cancelButton)));
         dialog.open();
