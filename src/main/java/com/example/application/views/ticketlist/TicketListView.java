@@ -41,8 +41,14 @@ public class TicketListView extends VerticalLayout {
         this.tickets = ticketService.findAll();
         configureGrid();
         configureDragAndDrop();
-        Button addTicketButton = new Button("Create Item", e -> openAddTicketDialog());
-        add(addTicketButton, grid);
+        add(createAddButton(), grid);
+    }
+
+    private Button createAddButton() {
+        return new Button("Create Item", e -> {
+            Ticket newTicket = new Ticket();
+            openTicketDialog(newTicket, true);
+        });
     }
 
     private void configureGrid() {
@@ -53,11 +59,11 @@ public class TicketListView extends VerticalLayout {
         grid.addColumn(Ticket::getSprint).setHeader("Sprint").setWidth("50px");
 
         grid.addComponentColumn(ticket -> {
-            Button moveUpButton = new Button("↑", e -> moveUp(ticket));
-            Button moveDownButton = new Button("↓", e -> moveDown(ticket));
-            Button deleteButton = new Button("Delete", e -> deleteTicket(ticket));
-            Button editButton = new Button("Edit", e -> openEditDialog(ticket));
-            return new HorizontalLayout(moveUpButton, moveDownButton, editButton, deleteButton);
+            Button up = new Button("↑", e -> move(ticket, -1));
+            Button down = new Button("↓", e -> move(ticket, +1));
+            Button edit = new Button("Edit", e -> openTicketDialog(ticket, false));
+            Button del = new Button("Delete", e -> deleteTicket(ticket));
+            return new HorizontalLayout(up, down, edit, del);
         }).setHeader("Actions");
 
         grid.setItems(tickets);
@@ -67,47 +73,31 @@ public class TicketListView extends VerticalLayout {
         grid.setRowsDraggable(true);
         grid.setDropMode(GridDropMode.ON_TOP);
 
-        grid.addDragStartListener(event -> draggedTicket = event.getDraggedItems().get(0));
-        grid.addDropListener(event -> {
-            Ticket targetTicket = event.getDropTargetItem().orElse(null);
-            GridDropLocation dropLocation = event.getDropLocation();
-
-            if (draggedTicket != null && targetTicket != null && draggedTicket != targetTicket) {
+        grid.addDragStartListener(e -> draggedTicket = e.getDraggedItems().getFirst());
+        grid.addDropListener(e -> {
+            Ticket target = e.getDropTargetItem().orElse(null);
+            if (draggedTicket != null && target != null && draggedTicket != target) {
                 tickets.remove(draggedTicket);
-                int targetIndex = tickets.indexOf(targetTicket) + (dropLocation == GridDropLocation.BELOW ? 1 : 0);
-                tickets.add(targetIndex, draggedTicket);
+                int idx = tickets.indexOf(target)
+                        + (e.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
+                if (idx < 0) idx = 0;
+                if (idx > tickets.size()) idx = tickets.size();
+                tickets.add(idx, draggedTicket);
                 rebuildTicketList();
             }
             draggedTicket = null;
         });
-        grid.addDragEndListener(event -> draggedTicket = null);
+        grid.addDragEndListener(e -> draggedTicket = null);
     }
 
-    private void moveUp(Ticket ticket) {
-        int index = tickets.indexOf(ticket);
-        if (index > 0) {
-            tickets.remove(index);
-            tickets.add(index - 1, ticket);
+    private void move(Ticket ticket, int offset) {
+        int i = tickets.indexOf(ticket);
+        int j = i + offset;
+        if (j >= 0 && j < tickets.size()) {
+            tickets.remove(i);
+            tickets.add(j, ticket);
             rebuildTicketList();
         }
-    }
-
-    private void moveDown(Ticket ticket) {
-        int index = tickets.indexOf(ticket);
-        if (index < tickets.size() - 1) {
-            tickets.remove(index);
-            tickets.add(index + 1, ticket);
-            rebuildTicketList();
-        }
-    }
-
-    private void rebuildTicketList() {
-        for (int i = 0; i < tickets.size(); i++) {
-            Ticket t = tickets.get(i);
-            t.setPriority(i + 1);
-            ticketService.save(t);
-        }
-        grid.getDataProvider().refreshAll();
     }
 
     private void deleteTicket(Ticket ticket) {
@@ -116,59 +106,50 @@ public class TicketListView extends VerticalLayout {
         rebuildTicketList();
     }
 
-    private void openEditDialog(Ticket ticket) {
-        Dialog editDialog = new Dialog();
+    private void openTicketDialog(Ticket ticket, boolean isNew) {
+        Dialog dlg = new Dialog();
         TextField itemField = new TextField("Title", ticket.getItem());
-        TextArea descriptionField = new TextArea("Description", ticket.getDescription());
+        TextArea descField = new TextArea("Description", ticket.getDescription());
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
 
-        FormLayout formLayout = new FormLayout(itemField, descriptionField, sprintField);
-        Button saveButton = new Button("Save", e -> {
-            if (!itemField.getValue().trim().isEmpty()) ticket.setItem(itemField.getValue().trim());
-            if (!descriptionField.getValue().trim().isEmpty()) ticket.setDescription(descriptionField.getValue().trim());
-            if (!sprintField.getValue().trim().isEmpty()) ticket.setSprint(sprintField.getValue().trim());
+        int nextPrio = tickets.isEmpty() ? 1
+                : tickets.stream().mapToInt(Ticket::getPriority).max().orElse(0) + 1;
+        TextField prioField = new TextField("Priority",
+                ticket.getPriority() > 0 ? String.valueOf(ticket.getPriority()) : String.valueOf(nextPrio));
 
-            ticketService.save(ticket);
-            grid.getDataProvider().refreshItem(ticket);
+        FormLayout form = new FormLayout(itemField, descField, prioField, sprintField);
+        Button save = new Button("Save", e -> {
+            ticket.setItem(itemField.getValue().trim());
+            ticket.setDescription(descField.getValue().trim());
+            ticket.setSprint(sprintField.getValue().trim());
+
+            int p;
+            try {
+                p = Integer.parseInt(prioField.getValue().trim());
+            } catch (NumberFormatException ex) {
+                p = nextPrio;
+            }
+            ticket.setPriority(p);
+
+            Ticket saved = ticketService.save(ticket);
+            if (isNew) {
+                tickets.add(saved);
+            }
             rebuildTicketList();
-            editDialog.close();
+            dlg.close();
         });
-        Button cancelButton = new Button("Cancel", e -> editDialog.close());
-        editDialog.add(new VerticalLayout(formLayout, new HorizontalLayout(saveButton, cancelButton)));
-        editDialog.open();
+        Button cancel = new Button("Cancel", e -> dlg.close());
+
+        dlg.add(new VerticalLayout(form, new HorizontalLayout(save, cancel)));
+        dlg.open();
     }
 
-    private void openAddTicketDialog() {
-        Dialog dialog = new Dialog();
-        TextField itemField = new TextField("Title");
-        TextArea descriptionField = new TextArea("Description");
-        TextField sprintField = new TextField("Sprint");
-        int nextPriority = tickets.isEmpty() ? 1 : tickets.stream().mapToInt(Ticket::getPriority).max().orElse(0) + 1;
-        TextField priorityField = new TextField("Priority", String.valueOf(nextPriority));
-
-        FormLayout formLayout = new FormLayout(itemField, descriptionField, priorityField, sprintField);
-        Button saveButton = new Button("Save", e -> {
-            Ticket newTicket = new Ticket();
-            newTicket.setItem(itemField.getValue().trim());
-            newTicket.setDescription(descriptionField.getValue().trim());
-            newTicket.setSprint(sprintField.getValue().trim());
-
-            String raw = priorityField.getValue().trim();
-            int prio;
-            try {
-                prio = Integer.parseInt(raw);
-            } catch (NumberFormatException ex) {
-                prio = nextPriority;
-            }
-            newTicket.setPriority(prio);
-
-            Ticket saved = ticketService.save(newTicket);
-            tickets.add(saved);
-            rebuildTicketList();
-            dialog.close();
-        });
-        Button cancelButton = new Button("Cancel", e -> dialog.close());
-        dialog.add(new VerticalLayout(formLayout, new HorizontalLayout(saveButton, cancelButton)));
-        dialog.open();
+    private void rebuildTicketList() {
+        for (int i = 0; i < tickets.size(); i++) {
+            Ticket t = tickets.get(i);
+            t.setPriority(i + 1);
+            ticketService.save(t);
+        }
+        grid.setItems(tickets);
     }
 }
