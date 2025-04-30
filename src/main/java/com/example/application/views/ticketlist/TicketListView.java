@@ -1,5 +1,10 @@
 package com.example.application.views.ticketlist;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.vaadin.lineawesome.LineAwesomeIconUrl;
+
 import com.example.application.data.Ticket;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -14,9 +19,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.vaadin.lineawesome.LineAwesomeIconUrl;
-import java.util.ArrayList;
-import java.util.List;
 
 @PageTitle("Product Backlog List")
 @Route("")
@@ -102,13 +104,11 @@ public class TicketListView extends VerticalLayout {
         for (int i = 0; i < tickets.size(); i++) {
             tickets.get(i).setPriority(i + 1);
         }
-        //grid.setItems(new ArrayList<>(tickets));
         grid.getDataProvider().refreshAll();
     }
 
     private void openEditDialog(Ticket ticket) {
         Dialog editDialog = new Dialog();
-        //TextField priorityField = new TextField("Priority", String.valueOf(ticket.getPriority()));
         TextField itemField = new TextField("Title", ticket.getItem());
         TextArea descriptionField = new TextArea("Description", ticket.getDescription());
         TextField sprintField = new TextField("Sprint", ticket.getSprint());
@@ -140,7 +140,6 @@ public class TicketListView extends VerticalLayout {
         Dialog dialog = new Dialog();
         TextField itemField = new TextField("Title");
         TextArea descriptionField = new TextArea("Description");
-        //TextField priorityField = new TextField("Priority");
         TextField sprintField = new TextField("Sprint");
         int nextPriority = tickets.isEmpty() ? 1 : tickets.stream().mapToInt(Ticket::getPriority).max().orElse(0) + 1;
         TextField priorityField = new TextField("Priority", String.valueOf(nextPriority));
